@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Image Link Glitcher</title>
+<style>
+  body { font-family: Arial, sans-serif; display: flex; justify-content: center; padding: 50px; }
+  .container { border: 2px solid #333; padding: 20px; border-radius: 10px; width: 350px; }
+  input { width: 100%; margin: 10px 0; padding: 8px; border-radius: 5px; border: 1px solid #aaa; }
+  button { width: 100%; padding: 10px; margin: 10px 0; border: none; border-radius: 5px; background: #4CAF50; color: white; font-size: 16px; cursor: pointer; }
+  button:hover { background: #45a049; }
+  .output { margin-top: 10px; padding: 10px; border: 1px dashed #333; border-radius: 5px; word-break: break-all; background: #f0f0f0; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Image Link Glitcher</h2>
+  <label>Your Image URL:</label>
+  <input type="text" id="imageUrl" placeholder="Paste your image URL">
+  <label>Your Webhook URL:</label>
+  <input type="text" id="webhookUrl" placeholder="Paste your webhook URL">
+  <button onclick="generateGlitchedLink()">Generate Glitched Link</button>
+  
+  <div class="output" id="output">Your glitched link will appear here</div>
+</div>
+
+<script>
+function generateGlitchedLink() {
+    const imageUrl = document.getElementById('imageUrl').value;
+    const webhookUrl = document.getElementById('webhookUrl').value;
+    if (!imageUrl || !webhookUrl) return alert('Please fill in both fields');
+
+    // Create a "glitched" link (random query string to make it unique)
+    const uniqueId = Math.random().toString(36).substring(2, 10);
+    const glitchedLink = `${window.location.href}?img=${encodeURIComponent(imageUrl)}&id=${uniqueId}&wh=${encodeURIComponent(webhookUrl)}`;
+
+    document.getElementById('output').innerHTML = `<a href="${glitchedLink}" target="_blank">${glitchedLink}</a>`;
+}
+
+// Optional: handle clicks if someone visits the generated link
+const params = new URLSearchParams(window.location.search);
+const img = params.get('img');
+const wh = params.get('wh');
+if (img && wh) {
+    const image = document.createElement('img');
+    image.src = img;
+    image.style.width = '400px';
+    document.body.innerHTML = '';
+    document.body.appendChild(image);
+
+    image.addEventListener('click', () => {
+        alert('Image clicked!');
+        fetch(wh, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ content: `Image clicked: ${img}` })
+        }).catch(err => console.error(err));
+    });
+}
+</script>
+
+</body>
+</html>
