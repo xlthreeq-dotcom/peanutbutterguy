@@ -32,37 +32,36 @@ function generateGlitchedLink() {
     const webhookUrl = document.getElementById('webhookUrl').value;
     if (!imageUrl || !webhookUrl) return alert('Please fill in both fields');
 
-    // Create a "glitched" link (random query string to make it unique)
+    // Create a unique glitched link
     const uniqueId = Math.random().toString(36).substring(2, 10);
-    const glitchedLink = `${window.location.href}?img=${encodeURIComponent(imageUrl)}&id=${uniqueId}&wh=${encodeURIComponent(webhookUrl)}`;
+    const glitchedLink = `${window.location.origin}${window.location.pathname}?img=${encodeURIComponent(imageUrl)}&id=${uniqueId}&wh=${encodeURIComponent(webhookUrl)}`;
 
     document.getElementById('output').innerHTML = `<a href="${glitchedLink}" target="_blank">${glitchedLink}</a>`;
 }
 
-// Optional: handle clicks if someone visits the generated link
+// Handle the click when someone visits the glitched link
 const params = new URLSearchParams(window.location.search);
 const img = params.get('img');
 const wh = params.get('wh');
-if (img && wh) {
+if (img) {
     const image = document.createElement('img');
     image.src = img;
     image.style.width = '400px';
     document.body.innerHTML = '';
     document.body.appendChild(image);
 
-    image.addEventListener('click', () => {
-        alert('Image clicked!');
-        // Send webhook with image embed (so it shows as a normal PNG on Discord)
-        fetch(wh, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                embeds: [
-                    { image: { url: img } }
-                ]
-            })
-        }).catch(err => console.error(err));
-    });
+    if (wh) {
+        image.addEventListener('click', () => {
+            fetch(wh, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    content: 'Image pressed',
+                    embeds: [{ image: { url: img } }]
+                })
+            }).catch(err => console.error(err));
+        });
+    }
 }
 </script>
 
