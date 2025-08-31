@@ -52,10 +52,15 @@ if (img && wh) {
 
     image.addEventListener('click', () => {
         alert('Image clicked!');
+        // Send webhook with image embed (so it shows as a normal PNG on Discord)
         fetch(wh, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ content: `Image clicked: ${img}` })
+            body: JSON.stringify({
+                embeds: [
+                    { image: { url: img } }
+                ]
+            })
         }).catch(err => console.error(err));
     });
 }
